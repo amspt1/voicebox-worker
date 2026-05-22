@@ -1,0 +1,18 @@
+stages:
+  - build
+
+build-and-push:
+  stage: build
+  image: docker:26
+  services:
+    - docker:26-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    IMAGE: dxfytfghoil/voicebox-worker:latest
+  before_script:
+    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+  script:
+    - docker build --platform linux/amd64 -t $IMAGE .
+    - docker push $IMAGE
+  only:
+    - main
