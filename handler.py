@@ -54,6 +54,14 @@ try:
 except ImportError:  # pragma: no cover
     runpod = None  # type: ignore
 
+# WHY: with `from __future__ import annotations` (PEP 563), FastAPI resolves type
+# annotations in the module's global scope — not the enclosing function's locals.
+# Importing Request here makes it resolvable when @app.post("/run") is decorated.
+try:
+    from fastapi import Request as _FastAPIRequest
+except ImportError:  # pragma: no cover
+    _FastAPIRequest = None  # type: ignore
+
 _REGISTRY = EngineRegistry()
 
 
@@ -139,7 +147,7 @@ def _mime(fmt: str) -> str:
 def _start_http_server() -> None:  # pragma: no cover
     """HTTP mode for Salad (and any plain-container provider)."""
     import uvicorn
-    from fastapi import FastAPI, Request
+    from fastapi import FastAPI
 
     app = FastAPI()
 
@@ -148,12 +156,13 @@ def _start_http_server() -> None:  # pragma: no cover
         return {"ok": True}
 
     @app.post("/run")
-    async def run(request: Request) -> dict:
+    async def run(request: _FastAPIRequest) -> dict:
         payload = await request.json()
         return handler({"input": payload})
 
     port = int(os.environ.get("PORT", "8000"))
     logger.info("starting HTTP server on port %d", port)
+    # WHY: Salad routes traffic via IPv6 — bind to "::" to accept both IPv4 and IPv6.
     uvicorn.run(app, host="::", port=port)
 
 
