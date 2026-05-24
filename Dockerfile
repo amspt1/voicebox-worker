@@ -9,6 +9,8 @@ ARG TIER=fast
 
 FROM python:3.12-slim-bookworm AS base
 
+# WHY: ARGs defined before FROM are not available in the stage without re-declaring.
+ARG TIER=fast
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
