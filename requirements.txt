@@ -1,5 +1,4 @@
-# Worker runtime — kept minimal so the image stays small. Tier-specific extras are
-# layered on by the Dockerfile via build args.
+# Worker runtime — kept minimal so the image stays small.
 
 runpod>=1.7,<2
 fastapi>=0.111,<1
@@ -11,12 +10,9 @@ numpy>=1.26,<2
 faster-whisper>=1.0,<2
 ctranslate2>=4.4,<5
 
-# TTS fast tier
-kokoro>=0.4,<1
+# TTS
+qwen-tts>=0.1.0
+torchaudio>=2.4
+transformers>=4.45,<5
 soundfile>=0.12
 pydub>=0.25
-
-# TTS premium tier (heavy — install via dockerfile arg when building premium)
-# torch  -- baked in by the CUDA base image
-# transformers>=4.45,<5
-# qwen-tts>=0.0.5

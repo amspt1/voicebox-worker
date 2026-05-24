@@ -5,11 +5,8 @@
 #
 # TIER arg controls which engine modules are eager-loaded at cold start.
 
-ARG TIER=fast
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime AS base
 
-FROM python:3.12-slim-bookworm AS base
-
-# WHY: ARGs defined before FROM are not available in the stage without re-declaring.
 ARG TIER=fast
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
@@ -26,9 +23,6 @@ WORKDIR /app
 # ---- Python deps ------------------------------------------------------------
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
-
-# ---- spaCy model (required by Kokoro/misaki G2P) ----------------------------
-RUN python -m spacy download en_core_web_sm
 
 # ---- Worker code ------------------------------------------------------------
 COPY handler.py io_layer.py ./
